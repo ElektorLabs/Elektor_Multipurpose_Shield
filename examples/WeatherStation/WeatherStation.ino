@@ -1,6 +1,10 @@
 /*
  * Weather Station
- * Display temperature, pressure, humidity & light level.
+ * Display temperature, pressure, relative humidity & light level.
+ *
+ * Shows how to use the Multipurpose Shield library.
+ *
+ * For use with PolyValens Multipurpose Shield 129009-1
  *
  * Belongs to:
  * "Mastering Microcontrollers Helped by Arduino"
@@ -8,9 +12,7 @@
  * ISBN 978-2-86661-190-3 (French)
  * http://www.polyvalens.com/
  *
- * For use with PolyValens Multipurpose Shield 129009-1
- *
- * Copyright (c) 2014, Clemens Valens
+ * Copyright (c) 2015, Clemens Valens
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -26,14 +28,17 @@
  * SOFTWARE.
  */
  
-#include <LiquidCrystal.h>
-LiquidCrystal lcd(6,7,5,4,3,2);
+#include <MultipurposeShield.h>
+
+// Define the shield object and the peripherals that
+// are available.
+MultipurposeShield mps(hasLcd |
+                       hasLed2 |
+                       hasPressureSensor |
+                       hasHumiditySensor |
+                       hasLightSensor);
 
 #define __CELSIUS__
-
-//#define __USE_CRC__
-#include "SHT1x.h"
-SHT1x sht1x;
 
 // Custom degree character.
 uint8_t degree[8] = 
@@ -59,94 +64,96 @@ uint8_t degree[8] =
 #endif /* __CELSIUS__ */
 };
 
-uint32_t t_last;
-#define LIGHT_MAX  (16)
-uint16_t light[LIGHT_MAX];
-uint8_t light_index = 0;
-const int led = 13;
-//const int p_offset = 1016 - 993; // For my sensor.
-
-// Kanfen, 14/3/2014 @ 11h15, 19°C, 220m.
-// Official pressure: 1028 mbar -> 4,23 V -> ADC reading of 867.
-// Measured: 823 -> 4,02 V -> 981 mbar
-// Offset: 867 - 823 = 44
-//const int p_offset = 867 - 823; 
-
-// Pluneret, 29/3/2014 @ 12h00, 21°C, 70m.
-// Official pressure: 1010 mbar -> 4,15 V -> ADC reading of 850.
-// Measured: 827 -> 4,04 V -> 985 mbar
-// Offset: 850 - 827 = 23
-const int p_offset = 850 - 827;
-
-uint16_t running_average(uint16_t val)
-{
-  uint32_t sum;
-  uint8_t i;
-  
-  light[light_index] = val;
-  light_index = (light_index+1)&(LIGHT_MAX-1);
-  
-  sum = 0;
-  for (i=0; i<LIGHT_MAX; i++)
-  {
-    sum += light[i];
-  }
-  sum /= LIGHT_MAX;
-  return sum;
-}
 
 void setup(void)
 {
-  pinMode(led,OUTPUT);
-  digitalWrite(led,LOW);
-  lcd.createChar(0,degree);
-  lcd.begin(16,2);
-  lcd.print("Weather Station");
+  mps.begin();
+  mps.lcd.print("Weather Station");
   delay(1500);
-  lcd.clear();
-  //        "0123456789012345"
-  lcd.print(" t  rh  mbar lum");
-  
-  t_last = 0;
+  // Create special degree character to save display space.
+  mps.lcd.createChar(0,degree);
+  mps.lcd.clear();
+  // Note: "lum" does not mean "lumen", that would be "lm".
+  //            "0123456789012345"
+  mps.lcd.print(" t  rh  mbar lum"); 
 }
+
 
 void loop(void)
 {
-  uint16_t light = running_average(1023-analogRead(A0));
+  static uint32_t t_last = 0;
+  
+  // Read the light sensor.
+  uint16_t light = mps.lightSensorRead();
 
+  // Every 1000 ms do...
   if (millis()>t_last+1000)
   {
     t_last = millis();
 
-    digitalWrite(led,HIGH);
+    // LED2 on.
+    mps.led2Write(HIGH);
     
-    int p = analogRead(A1);
-    p = (17*(p+p_offset) + 1714) >> 4;
-
-    sht1x.begin(SDA,SCL,true);
-    sht1x.update();
-    float t = sht1x.get_temperature();
-    float rh = sht1x.get_humidity();
+    // Read the pressure sensor.
+    // The correction value of 23 depends on your location.
+    // First set to 0 and compare the displayed value with a
+    // reference value obtained from another source (internet),
+    // then calculate the difference and use that in place of 23.
+    // The correction may be positive or negative.
+    int p = mps.pressureSensorRead(23);
+    
+    // Read the humidity sensor twice as it provides relative
+    // humidity and temperature.
+    float rh = mps.humiditySensorReadRh();
+    float t = mps.humiditySensorReadT();
 
 #ifndef __CELSIUS__
     t = t*9.0/5.0 + 32.0; // Celsius to Fahrenheit.
 #endif /* __CELSIUS__ */
 
-    lcd.setCursor(0,1);
-    if (t>=0 && t<10) lcd.print(' ');
-    lcd.print(t+0.5,0);
-    lcd.write((uint8_t)0);
-    lcd.print(' ');
-    lcd.print(rh+0.5,0);
-    lcd.print("% ");
-    lcd.print(p);
-    if (p<1000) lcd.print(' ');
-    lcd.print(' ');
-    lcd.print(light);
-    if (light<10) lcd.print(' ');
-    if (light<100) lcd.print(' ');
+    // Show results.
+    mps.lcd.setCursor(0,1);
+    
+    // Print temperature, right justified.
+    t += 0.5; // For rounding.
+    // There is not enough space on the display for 3-digit values.
+    if (t>99.0) t = 99.0;
+    if (t>=0.0 && t<10.0) mps.lcd.print(' '); // Negative values need an extra position.
+    mps.lcd.print(t,0); // Print without decimals.
+    mps.lcd.write((uint8_t)0); // Print our special degree symbol.
 
-    digitalWrite(led,LOW);
+    // Print separator.
+    mps.lcd.print(' ');
+    
+    // Print relative humidity, right justified.
+    rh += 0.5; // For rounding.
+    // There is not enough space on the display for 3-digit values.
+    if (rh>99.0) rh = 99.0;
+    if (rh<10.0) mps.lcd.print(' ');
+    mps.lcd.print(rh,0); // Print without decimals.
+    mps.lcd.print("%");
+    
+    // Print separator.
+    mps.lcd.print(' ');
+
+    // Print atmospheric pressure, right justified.
+    if (p<1000) mps.lcd.print(' ');
+    if (p<100) mps.lcd.print(' '); // Very, very bad weather.
+    if (p<10) mps.lcd.print(' '); // End of the world.
+    mps.lcd.print(p);
+    
+    // Print separator.
+    mps.lcd.print(' ');
+    
+    // Print luminosity, right justified.
+    // There is not enough space on the display for 3-digit values.
+    if (light>99) light = 99;
+    if (light<10) mps.lcd.print(' ');
+    mps.lcd.print(light);
+    mps.lcd.print("%");
+
+    // LED2 off.
+    mps.led2Write(LOW);
   }
 }
 

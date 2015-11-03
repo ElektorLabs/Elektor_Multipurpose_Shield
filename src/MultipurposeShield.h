@@ -39,62 +39,62 @@
 enum multipurposeShieldPeripherals
 {
   // Digital IO.
-  kDigitalIn0  = 0x00000001, // RX,   pin 0
-  kDigitalOut0 = 0x00000002, //       pin 0
-  kDigitalIn1  = 0x00000004, //       pin 1
-  kDigitalOut1 = 0x00000008, // TX,   pin 1
-  kLcd         = 0x00000010, // LCD1, pin 2,3,4,5,6,7
-  kRemote      = 0x00000020, // IC1,  pin 8
-  kPushbutton1 = 0x00000040, // S1,   pin 9
-  kTransistor2 = 0x00000080, // T2,   pin 9
-  kPushbutton2 = 0x00000100, // S2,   pin 10
-  kTransistor1 = 0x00000200, // T1,   pin 10
-  kLed1        = 0x00000400, // LED1, pin 11
-  kBuzzer      = 0x00000800, // BUZ1, pin 11
-  kTemperature = 0x00001000, // IC2,  pin 12
-  kLed2        = 0x00002000, // LED2, pin 13
+  hasDigitalIn0     = 0x00000001, // RX, pin 0
+  hasDigitalOut0    = 0x00000002, // pin 0
+  hasDigitalIn1     = 0x00000004, // pin 1
+  hasDigitalOut1    = 0x00000008, // TX, pin 1
+  hasLcd            = 0x00000010, // LCD1, pin 2,3,4,5,6,7
+  hasRcDetector     = 0x00000020, // IC1, pin 8
+  hasPushbutton1    = 0x00000040, // S1, pin 9
+  hasTransistor2    = 0x00000080, // T2, pin 9
+  hasPushbutton2    = 0x00000100, // S2, pin 10
+  hasTransistor1    = 0x00000200, // T1, pin 10
+  hasLed1           = 0x00000400, // LED1, pin 11
+  hasBuzzer         = 0x00000800, // BUZ1, pin 11
+  hasThermometer    = 0x00001000, // IC2, pin 12
+  hasLed2           = 0x00002000, // LED2, pin 13
   // Analog inputs.
-  kLight       = 0x00004000, // LDR1, A0
-  kSound       = 0x00008000, // MIC1, A0
-  kPressure    = 0x00010000, // IC3,  A1
-  kAnalogIn    = 0x00020000, // pin   A2
-  kTrimmer     = 0x00040000, // P1,   A3
+  hasLightSensor    = 0x00004000, // LDR1, A0
+  hasMicrophone     = 0x00008000, // MIC1, A0
+  hasPressureSensor = 0x00010000, // IC3, A1
+  hasAnalogIn       = 0x00020000, // pin A2
+  hasPotentiometer  = 0x00040000, // P1, A3
   // I2C and friends.
-  kHumidity    = 0x00080000, // IC4,  A4,A5
-  kIr          = 0x00100000, // IC5,  A4,A5
+  hasHumiditySensor = 0x00080000, // IC4, A4,A5
+  hasIrThermometer  = 0x00100000, // IC5, A4,A5
 };
 
 
 enum multipurposeShieldPeripheralPins
 {
   // Digital IO.
-  kPinDigitalIn0  = 0,
-  kPinDigitalOut0 = 0,
-  kPinDigitalIn1  = 1,
-  kPinDigitalOut1 = 1,
-  kPinRemote      = 8,
-  kPinPushbutton1 = 9,
-  kPinTransistor2 = 9,
-  kPinPushbutton2 = 10,
-  kPinTransistor1 = 10,
-  kPinLed1        = 11,
-  kPinBuzzer      = 11,
-  kPinTemperature = 12,
-  kPinLed2        = 13,
+  pinDigitalIn0 = 0,
+  pinDigitalOut0 = 0,
+  pinDigitalIn1 = 1,
+  pinDigitalOut1 = 1,
+  pinRcDetector = 8,
+  pinPushbutton1 = 9,
+  pinTransistor2 = 9,
+  pinPushbutton2 = 10,
+  pinTransistor1 = 10,
+  pinLed1 = 11,
+  pinBuzzer = 11,
+  pinThermometer = 12,
+  pinLed2 = 13,
   // Analog inputs.
-  kPinLight       = 14,
-  kPinSound       = 14,
-  kPinPressure    = 15,
-  kPinAnalogIn    = 16,
-  kPinTrimmer     = 17,
+  pinLightSensor = 14,
+  pinMicrophone = 14,
+  pinPressureSensor = 15,
+  pinAnalogIn = 16,
+  pinPotentiometer = 17,
   // LCD
-  kPinLcdRs = 6,
-  kPinLcdRw = 255,
-  kPinLcdE = 7,
-  kPinLcdD4 = 5,
-  kPinLcdD5 = 4,
-  kPinLcdD6 = 3,
-  kPinLcdD7 = 2,
+  pinLcdRs = 6,
+  pinLcdRw = 255,
+  pinLcdE = 7,
+  pinLcdD4 = 5,
+  pinLcdD5 = 4,
+  pinLcdD6 = 3,
+  pinLcdD7 = 2,
 };
 
 
@@ -105,20 +105,46 @@ public:
 
   void begin(void);
 
-  // Humidity sensor IC4 SHT11.
-  boolean humiditySensorRead(void);
-  float humiditySensorReadHumidity(void);
-  float humiditySensorReadTemperature(void);
-  float humiditySensorReadDewPoint(void);
-
-  // Pressure sensor IC3 MPX4115A
+  // Pressure sensor IC3 MPX4115.
   int16_t pressureSensorRead(int16_t offset=0);
 
+  // Humidity sensor IC4 SHT11.
+  boolean humiditySensorRead(void);
+  float humiditySensorReadRh(void);
+  float humiditySensorReadT(void);
+  float humiditySensorReadDewPoint(void);
+
+  // Light sensor LDR1.
+  int16_t lightSensorRead(boolean asPercentage=true);
+
+  // Digital outputs (unchecked).
+  inline void digitalOut0Write(uint8_t value) { digitalWrite(pinDigitalOut0,value); }
+  inline void digitalOut1Write(uint8_t value) { digitalWrite(pinDigitalOut1,value); }
+
+  // Digital inputs (unchecked).
+  inline uint8_t digitalIn0Read(void) { digitalRead(pinDigitalIn0); }
+  inline uint8_t digitalIn1Read(void) { digitalRead(pinDigitalIn1); }
+  
+  // LEDs.
+  void led1Write(uint8_t value) { digitalWriteChecked(hasLed1,pinLed1,value); }
+  void led2Write(uint8_t value) { digitalWriteChecked(hasLed2,pinLed2,value); }
+  
+  // Transistors.
+  void transistor1Write(uint8_t value) { digitalWriteChecked(hasTransistor1,pinTransistor1,value); }
+  void transistor2Write(uint8_t value) { digitalWriteChecked(hasTransistor2,pinTransistor2,value); }
+
+  // Pushbuttons.
+  uint8_t pushbutton1Read(void) { return digitalReadChecked(hasPushbutton1,pinPushbutton1); }
+  uint8_t pushbutton2Read(void) { return digitalReadChecked(hasPushbutton2,pinPushbutton2); }
+  
   LiquidCrystal lcd;
   SHT1x sht11;
 
 private:
   uint32_t _capabilities;
+
+  void digitalWriteChecked(uint32_t capability, uint8_t pin, uint8_t value);
+  int8_t digitalReadChecked(uint32_t capability, uint8_t pin);
 };
 
 
