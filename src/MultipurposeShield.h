@@ -31,8 +31,11 @@
 #define __MULTIPURPOSESHIELD_H__
 
 
+#include <float.h>
 #include "LiquidCrystal\LiquidCrystal.h"
-#include "SHT1x\SHT1x.h"
+#include "sht1x\sht1x.h"
+#include "mlx90614\mlx90614.h"
+#include "ds1820\ds1820.h"
 
 
 
@@ -105,6 +108,9 @@ public:
 
   void begin(void);
 
+  // One-wire thermometer IC2 DS18B20.
+  float thermometerRead(void);
+
   // Pressure sensor IC3 MPX4115.
   int16_t pressureSensorRead(int16_t offset=0);
 
@@ -113,6 +119,9 @@ public:
   float humiditySensorReadRh(void);
   float humiditySensorReadT(void);
   float humiditySensorReadDewPoint(void);
+
+  // Infrared thermometer IC5 MLX90614.
+  float infraredThermometerRead(void);
 
   // Light sensor LDR1.
   int16_t lightSensorRead(boolean asPercentage=true);
@@ -124,11 +133,11 @@ public:
   // Digital inputs (unchecked).
   inline uint8_t digitalIn0Read(void) { digitalRead(pinDigitalIn0); }
   inline uint8_t digitalIn1Read(void) { digitalRead(pinDigitalIn1); }
-  
+
   // LEDs.
   void led1Write(uint8_t value) { digitalWriteChecked(hasLed1,pinLed1,value); }
   void led2Write(uint8_t value) { digitalWriteChecked(hasLed2,pinLed2,value); }
-  
+
   // Transistors.
   void transistor1Write(uint8_t value) { digitalWriteChecked(hasTransistor1,pinTransistor1,value); }
   void transistor2Write(uint8_t value) { digitalWriteChecked(hasTransistor2,pinTransistor2,value); }
@@ -136,15 +145,17 @@ public:
   // Pushbuttons.
   uint8_t pushbutton1Read(void) { return digitalReadChecked(hasPushbutton1,pinPushbutton1); }
   uint8_t pushbutton2Read(void) { return digitalReadChecked(hasPushbutton2,pinPushbutton2); }
-  
+
   LiquidCrystal lcd;
   SHT1x sht11;
+  MLX90614 mlx90614;
+  DS1820 ds18b20;
 
 private:
-  uint32_t _capabilities;
+  uint32_t _peripherals;
 
-  void digitalWriteChecked(uint32_t capability, uint8_t pin, uint8_t value);
-  int8_t digitalReadChecked(uint32_t capability, uint8_t pin);
+  void digitalWriteChecked(uint32_t hasPeripheral, uint8_t pin, uint8_t value);
+  int8_t digitalReadChecked(uint32_t hasPeripheral, uint8_t pin);
 };
 
 

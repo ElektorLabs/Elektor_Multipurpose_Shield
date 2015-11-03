@@ -28,129 +28,138 @@
 #include "MultipurposeShield.h"
 
 
-#define has_peripheral(a)  (_capabilities&(a))!=0
+#define multipurposeShield(a)  (_peripherals&(a))!=0
 
 
 MultipurposeShield::MultipurposeShield(uint32_t peripherals)
 {
-  _capabilities = peripherals;
+  _peripherals = peripherals;
 }
 
 
 void MultipurposeShield::begin(void)
 {
-  if (has_peripheral(hasDigitalIn0))
+  if (multipurposeShield(hasDigitalIn0))
   {
     // Digital input.
     pinMode(pinDigitalIn0,INPUT_PULLUP);
   }
-  if (has_peripheral(hasDigitalOut0))
+  if (multipurposeShield(hasDigitalOut0))
   {
     // Digital output.
     pinMode(pinDigitalOut0,OUTPUT);
     digitalWrite(pinDigitalOut0,LOW);
   }
-  if (has_peripheral(hasDigitalIn1))
+  if (multipurposeShield(hasDigitalIn1))
   {
     // Digital input.
     pinMode(pinDigitalIn1,INPUT_PULLUP);
   }
-  if (has_peripheral(hasDigitalOut1))
+  if (multipurposeShield(hasDigitalOut1))
   {
     // Digital output.
     pinMode(pinDigitalOut1,OUTPUT);
     digitalWrite(pinDigitalOut1,LOW);
   }
-  if (has_peripheral(hasLcd))
+  if (multipurposeShield(hasLcd))
   {
     // Initialise LCD.
     lcd.init(1,pinLcdRs,pinLcdRw,pinLcdE,pinLcdD4,pinLcdD5,pinLcdD6,pinLcdD7,0,0,0,0);
     lcd.begin(16,2);
   }
-  if (has_peripheral(hasRcDetector))
+  if (multipurposeShield(hasRcDetector))
   {
     // Digital input.
     pinMode(pinRcDetector,INPUT_PULLUP);
   }
-  if (has_peripheral(hasPushbutton1))
+  if (multipurposeShield(hasPushbutton1))
   {
     // Digital input.
     pinMode(pinPushbutton1,INPUT_PULLUP);
   }
-  if (has_peripheral(hasTransistor2))
+  if (multipurposeShield(hasTransistor2))
   {
     // Digital output.
     pinMode(pinTransistor2,OUTPUT);
     digitalWrite(pinTransistor2,LOW);
   }
-  if (has_peripheral(hasPushbutton2))
+  if (multipurposeShield(hasPushbutton2))
   {
     // Digital input.
     pinMode(pinPushbutton2,INPUT_PULLUP);
   }
-  if (has_peripheral(hasTransistor1))
+  if (multipurposeShield(hasTransistor1))
   {
     // Digital output.
     pinMode(pinTransistor1,OUTPUT);
     digitalWrite(pinTransistor1,LOW);
   }
-  if (has_peripheral(hasLed1))
+  if (multipurposeShield(hasLed1))
   {
     // Digital output.
     pinMode(pinLed1,OUTPUT);
     digitalWrite(pinLed1,LOW);
   }
-  if (has_peripheral(hasBuzzer))
+  if (multipurposeShield(hasBuzzer))
   {
     // Digital output.
     pinMode(pinBuzzer,OUTPUT);
     digitalWrite(pinBuzzer,LOW);
   }
-  if (has_peripheral(hasThermometer))
+  if (multipurposeShield(hasThermometer))
   {
     // Digital input.
   }
-  if (has_peripheral(hasLed2))
+  if (multipurposeShield(hasLed2))
   {
     // Digital output.
     pinMode(pinLed2,OUTPUT);
     digitalWrite(pinLed2,LOW);
   }
-  if (has_peripheral(hasLightSensor))
+  if (multipurposeShield(hasLightSensor))
   {
     // Analog input.
   }
-  if (has_peripheral(hasMicrophone))
+  if (multipurposeShield(hasMicrophone))
   {
     // Analog input.
   }
-  if (has_peripheral(hasPressureSensor))
+  if (multipurposeShield(hasPressureSensor))
   {
     // Analog input.
   }
-  if (has_peripheral(hasAnalogIn))
+  if (multipurposeShield(hasAnalogIn))
   {
     // Analog input.
   }
-  if (has_peripheral(hasPotentiometer))
+  if (multipurposeShield(hasPotentiometer))
   {
     // Analog input.
   }
-  if (has_peripheral(hasHumiditySensor))
+  if (multipurposeShield(hasHumiditySensor))
   {
     // I2C or similar.
   }
-  if (has_peripheral(hasIrThermometer))
+  if (multipurposeShield(hasIrThermometer))
   {
     // I2C or similar.
   }
 }
 
 
+float MultipurposeShield::thermometerRead(void)
+{
+  if (multipurposeShield(hasThermometer))
+  {
+    return ds18b20.read();
+  }
+  return FLT_MAX;
+}
+
+
 int16_t MultipurposeShield::pressureSensorRead(int16_t offset)
 {
-  int16_t p;
-  if (has_peripheral(hasPressureSensor))
+  if (multipurposeShield(hasPressureSensor))
   {
     // Use fixed-point arithmetic including rounding and error correction.
     return (17*(analogRead(pinPressureSensor)+offset) + 1714) >> 4;
@@ -161,7 +170,7 @@ int16_t MultipurposeShield::pressureSensorRead(int16_t offset)
 
 boolean MultipurposeShield::humiditySensorRead(void)
 {
-  if (has_peripheral(hasHumiditySensor))
+  if (multipurposeShield(hasHumiditySensor))
   {
     sht11.begin(SDA,SCL,true);
     sht11.update();
@@ -177,7 +186,7 @@ float MultipurposeShield::humiditySensorReadRh(void)
   {
     return sht11.get_humidity();
   }
-  return -1;
+  return FLT_MAX;
 }
 
 
@@ -187,7 +196,7 @@ float MultipurposeShield::humiditySensorReadT(void)
   {
     return sht11.get_temperature();
   }
-  return -1;
+  return FLT_MAX;
 }
 
 
@@ -197,13 +206,24 @@ float MultipurposeShield::humiditySensorReadDewPoint(void)
   {
     return sht11.get_dewpoint();
   }
-  return -1;
+  return FLT_MAX;
+}
+
+
+float MultipurposeShield::infraredThermometerRead(void)
+{
+  if (multipurposeShield(hasIrThermometer))
+  {
+    mlx90614.begin(A4,A5);
+    return mlx90614.read();
+  }
+  return FLT_MAX;
 }
 
 
 int16_t MultipurposeShield::lightSensorRead(boolean asPercentage)
 {
-  if (has_peripheral(hasLightSensor))
+  if (multipurposeShield(hasLightSensor))
   {
     // The LDR gives a high reading for low light levels, so invert it.
     int32_t l = 1023 - analogRead(pinLightSensor);
@@ -218,20 +238,20 @@ int16_t MultipurposeShield::lightSensorRead(boolean asPercentage)
 }
 
 
-void MultipurposeShield::digitalWriteChecked(uint32_t capability, uint8_t pin, uint8_t value)
-{ 
-  if (has_peripheral(capability))
+void MultipurposeShield::digitalWriteChecked(uint32_t hasPeripheral, uint8_t pin, uint8_t value)
+{
+  if (multipurposeShield(hasPeripheral))
   {
-    digitalWrite(pin,value); 
+    digitalWrite(pin,value);
   }
 }
 
 
-int8_t MultipurposeShield::digitalReadChecked(uint32_t capability, uint8_t pin)
-{ 
-  if (has_peripheral(capability))
+int8_t MultipurposeShield::digitalReadChecked(uint32_t hasPeripheral, uint8_t pin)
+{
+  if (multipurposeShield(hasPeripheral))
   {
-    return digitalRead(pin); 
+    return digitalRead(pin);
   }
   return -1;
 }

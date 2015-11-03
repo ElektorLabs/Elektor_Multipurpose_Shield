@@ -6,11 +6,12 @@
  * "Mastering Microcontrollers Helped by Arduino"
  * ISBN 978-1-907920-23-3 (English)
  * ISBN 978-2-86661-190-3 (French)
+ * ISBN 978-3-89576-296-3 (German)
  * http://www.polyvalens.com/
  *
  * For use with PolyValens Multipurpose Shield 129009-1
  *
- * Copyright (c) 2014, Clemens Valens
+ * Copyright (c) 2015, Clemens Valens
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the

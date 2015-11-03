@@ -6,12 +6,32 @@
 # Datatypes (KEYWORD1)
 #######################################
 
+MultipurposeShield	KEYWORD1
+LiquidCrystal	KEYWORD1
+SHT1x	KEYWORD1
+MLX90614	KEYWORD1
+DS1820	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
 begin	KEYWORD2
+pressureSensorRead	KEYWORD2
+humiditySensorReadRh	KEYWORD2
+humiditySensorReadT	KEYWORD2
+humiditySensorReadDewPoint	KEYWORD2
+lightSensorRead	KEYWORD2
+digitalOut0Write	KEYWORD2
+digitalOut1Write	KEYWORD2
+digitalIn0Read	KEYWORD2
+digitalIn1Read	KEYWORD2
+led1Write	KEYWORD2
+led2Write	KEYWORD2
+transistor1Write	KEYWORD2
+transistor2Write	KEYWORD2
+pushbutton1Read	KEYWORD2
+pushbutton2Read	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
@@ -19,10 +39,57 @@ begin	KEYWORD2
 
 sht11	KEYWORD2
 lcd	KEYWORD2
-mpx4115	KEYWORD2
-ds1820	KEYWORD2
+ds18b20	KEYWORD2
+mlx90614	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
+
+hasDigitalIn0	LITERAL1
+hasDigitalOut0	LITERAL1
+hasDigitalIn1	LITERAL1
+hasDigitalOut1	LITERAL1
+hasLcd	LITERAL1
+hasRcDetector	LITERAL1
+hasPushbutton1	LITERAL1
+hasTransistor2	LITERAL1
+hasPushbutton2	LITERAL1
+hasTransistor1	LITERAL1
+hasLed1	LITERAL1
+hasBuzzer	LITERAL1
+hasThermometer	LITERAL1
+hasLed2	LITERAL1
+hasLightSensor	LITERAL1
+hasMicrophone	LITERAL1
+hasPressureSensor	LITERAL1
+hasAnalogIn	LITERAL1
+hasPotentiometer	LITERAL1
+hasHumiditySensor	LITERAL1
+hasIrThermometer	LITERAL1
+pinDigitalIn0	LITERAL1
+pinDigitalOut0	LITERAL1
+pinDigitalIn1	LITERAL1
+pinDigitalOut1	LITERAL1
+pinRcDetector	LITERAL1
+pinPushbutton1	LITERAL1
+pinTransistor2	LITERAL1
+pinPushbutton2	LITERAL1
+pinTransistor1	LITERAL1
+pinLed1	LITERAL1
+pinBuzzer	LITERAL1
+pinThermometer	LITERAL1
+pinLed2	LITERAL1
+pinLightSensor	LITERAL1
+pinMicrophone	LITERAL1
+pinPressureSensor	LITERAL1
+pinAnalogIn	LITERAL1
+pinPotentiometer	LITERAL1
+pinLcdRs	LITERAL1
+pinLcdRw	LITERAL1
+pinLcdE	LITERAL1
+pinLcdD4	LITERAL1
+pinLcdD5	LITERAL1
+pinLcdD6	LITERAL1
+pinLcdD7	LITERAL1
 
